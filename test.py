@@ -57,26 +57,34 @@ test_mask[0,:,:,0] = 0
 test_mask[0,:,:,2] = 0
 
 
-
+# Create a plot to compare image and overlay (image and tumor mask superposed)
 fig, ax = plt.subplots(5,2,figsize=(30,30))
+# Set titles
+ax[0][0].title.set_text("Image only")
+ax[0][1].title.set_text("True mask (Brain MRI + tumor)")
+
 for x in range(5):
     test_im, test_mask = test_gen.__getitem__(x)
-    #ax[x][0].title.set_text("Brain MRI")
-    test_im = 255 * test_im
+    # Convert into integer
     test_im = test_im.astype(np.uint8)
-#     test_im[0,:,:,0] = 0
-#     test_im[0,:,:,2] = 0
+    # Multiply by 255 to display the image
+    test_im = 255 * test_im
+    # Plot the image in grayscale using the 3 channels of the matrix
     ax[x][0].imshow(test_im[0,:,:,:])
-    #ax[x][1].title.set_text("Brain MRI with Mask")
+    # Convert to integer
     test_mask = test_mask.astype(np.uint8)
+    # Multiply by 255
     test_mask = 255 * test_mask
+    # Set information from 1st and last channel to zero as the information about the tumor is contained into the 2nd channel (or the 2nd class)
     test_mask[0,:,:,0] = 0
     test_mask[0,:,:,2] = 0
-    
+    # Change order of the channel to display the mask in red color
     test_mask = test_mask[:,:,:,[1,0, 2]] 
-
+    # Create the overlay (superposition of the brain image and the tumor mask)
     overlay = cv2.addWeighted(test_im[0,:,:,:], 0.5,test_mask[0,:,:,:],1.2,0)
+    # Plot the overlay
     ax[x][1].imshow(overlay)
+
 plt.show()
 raise
 
