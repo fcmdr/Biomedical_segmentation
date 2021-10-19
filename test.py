@@ -30,11 +30,173 @@ test_df = pd.read_csv("test_df.csv")
 
 
 # Instanciate the test generator
-test_gen = DataGenerator(test_df.indexes, test_df.FLAIR_img_path, test_df.Mask_path, batch_size=1, augment=False, n_classes=3, shuffle=False)
+test_gen = DataGenerator(test_df.indexes, test_df.T2reg_img_path, test_df.Mask_path, batch_size=1, augment=False, n_classes=3, shuffle=False)
 
 # Select a slice image associated to a tumor
-INDEX = 10
-test_im, test_mask = test_gen.__getitem__(INDEX)
+# INDEX = 10
+# for i in range(INDEX):
+#         test_im, test_mask = test_gen.__getitem__(i)
+#         #visualizing prediction
+#         original = test_im[0,:,:,:]
+#         mask_pred = test_mask[0,:,:,:]
+#         print(original)
+#         original = cv2.cvtColor(original,cv2.COLOR_GRAY2RGB)
+#         print(original.shape)
+#         #cv2.imshow('Brain MRI',original)
+#         # display blue image with overlay
+#         dst = cv2.addWeighted(original,0.8,mask_pred,0.7,0)
+#         #cv2.imshow('Brain MRI/Brain MRI tumor mask',dst)
+#         img_arr = np.hstack((original, dst))
+#         cv2.imshow('Brain MRI/Brain MRI tumor mask',img_arr)
+#         cv2.waitKey(2000)
+#         cv2.destroyAllWindows()
+
+test_im, test_mask = test_gen.__getitem__(6)
+test_mask = 255 * test_mask
+test_mask[0,:,:,0] = 0
+test_mask[0,:,:,2] = 0
+
+
+
+fig, ax = plt.subplots(5,2,figsize=(30,30))
+for x in range(5):
+    test_im, test_mask = test_gen.__getitem__(x)
+    #ax[x][0].title.set_text("Brain MRI")
+    test_im = 255 * test_im
+    test_im = test_im.astype(np.uint8)
+#     test_im[0,:,:,0] = 0
+#     test_im[0,:,:,2] = 0
+    ax[x][0].imshow(test_im[0,:,:,:])
+    #ax[x][1].title.set_text("Brain MRI with Mask")
+    test_mask = test_mask.astype(np.uint8)
+    test_mask = 255 * test_mask
+    test_mask[0,:,:,0] = 0
+    test_mask[0,:,:,2] = 0
+    
+    test_mask = test_mask[:,:,:,[1,0, 2]] 
+
+    overlay = cv2.addWeighted(test_im[0,:,:,:], 0.5,test_mask[0,:,:,:],1.2,0)
+    ax[x][1].imshow(overlay)
+plt.show()
+raise
+
+#     test_results = model.predict(test_im)
+#     print(f"test_results : {np.unique(test_results)}")
+
+#     test_results = test_results.astype(np.uint8)
+#     print(f"test_results : {np.unique(test_results)}")
+#     plt.show()
+#     raise
+
+#     test_results = test_results * 255
+#     test_results[0,:,:,0] = 0
+#     test_results[0,:,:,2] = 0
+    
+#     test_results = test_results[:,:,:,[1,0, 2]] 
+#     ax[x][2].imshow(test_results[0,:,:,:])
+
+# #     ax[x][2].imshow(test_im[0,:,:,:])
+# #     ax[x][2].imshow(test_mask[0,:,:,:], alpha=0.4)
+# plt.show()
+# raise
+
+
+# # loop over the alpha transparency values
+# for alpha in np.arange(0, 1.1, 0.1)[::-1]:
+# 	# create two copies of the original image -- one for
+# 	# the overlay and one for the final output image
+# 	overlay = test_im.copy()
+# 	output = test_im.copy()
+# 	# draw a red rectangle surrounding Adrian in the image
+# 	# along with the text "PyImageSearch" at the top-left
+# 	# corner
+#         cv2.addWeighted(overlay, alpha, output, 1 - alpha,0, output)
+#         print("alpha={}, beta={}".format(alpha, 1 - alpha))
+# 	cv2.imshow("Output", output)
+# 	cv2.waitKey(1000)
+# raise
+# plt.show()
+# raise
+
+def display(display_list):
+  plt.figure(figsize=(15, 15))
+
+  title = ['Input Image', 'True Mask', 'Predicted Mask']
+
+  for i in range(len(display_list)):
+    plt.subplot(1, len(display_list), i+1)
+    plt.title(title[i])
+    plt.imshow(tf.keras.preprocessing.image.array_to_img(display_list[i]))
+    plt.axis('off')
+  plt.show()
+
+for images, masks in test_gen:
+        print("shape of images and masks are :")
+        print(images.shape,masks.shape)
+        raise
+#   sample_image, sample_mask = images[0], masks[0]
+#   display([sample_image, sample_mask])
+
+raise
+fig, axs = plt.subplots(1,2, figsize=(10,10), squeeze=False)
+
+for i in range(10):
+        test_im, test_mask = test_gen.__getitem__(i)
+        print(test_mask.shape)
+        #read mri images
+        original = test_im[0,:,:,0]
+        print(original.shape)
+        #img = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+        #plt.imshow(original)
+axs[count][0].imshow(original)
+axs[count][0].title.set_text('Brain MRI')
+plt.show()
+raise
+
+        # raise
+
+        # plt.show()
+        # #Save image
+        # # Filename 
+        # filename = 'overlay_image.jpg'
+        # # Using cv2.imwrite() method 
+        # # Saving the image 
+        # #cv2 seems to save image in BGR format so use plt.imsave
+        # plt.imsave(filename, img_masked.astype(np.uint8)) 
+        # plt.imshow(img_masked.astype(np.uint8))
+
+        # raise
+# raise
+#         #read original mask
+#         mask = io.imread(df_pred.mask_path[i])
+#         axs[count][1].imshow(mask)
+#         axs[count][1].title.set_text('True mask')
+        
+#         #read predicted mask
+#         pred = np.array(df_pred.predicted_mask[i]).squeeze().round()
+#         axs[count][2].imshow(pred)
+#         axs[count][2].title.set_text('Predicted mask')
+        
+#         #overlay original mask with MRI
+#         img[mask==255] = (255,0,0)
+#         axs[count][3].imshow(img)
+#         axs[count][3].title.set_text('Brain MRI with true mask')
+        
+#         #overlay predicted mask and MRI
+#         img_ = io.imread(df_pred.image_path[i])
+#         img_ = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
+#         img_[pred==1] = (0,255,150)
+#         axs[count][4].imshow(img_)
+#         axs[count][4].title.set_text('Brain MRI with predicted mask')
+        
+#         count +=1
+#     if (count==15):
+#         break
+# raise
+
+
+
+
 print(test_im.shape)
 print(test_mask.shape)
 
